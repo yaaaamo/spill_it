@@ -53,10 +53,11 @@ app.post('/signup', (req, res) => {
             return console.error(err.message);
         }
         console.log('User signed up successfully');
-        res.send('Signup successful');
+        // Redirect to the login page after successful signup
+        res.redirect('/login');
     });
-    res.sendFile(path.join(__dirname,'login.html'));
 });
+
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
@@ -97,6 +98,7 @@ app.get('/profile', requireLogin, (req, res) => {
     // Access user information from session
     const user = req.session.user;
     res.send(`Welcome ${user.username}!`);
+    console.log("User sent to the profile page");
 });
 
 
