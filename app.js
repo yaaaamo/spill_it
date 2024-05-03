@@ -8,7 +8,7 @@ const app = express();
 const port = 3000;
 
 app.use(session({
-    secret: 'otuzbir',
+    secret: 'jedi',
     resave: false,
     saveUninitialized: true
 }));
@@ -33,6 +33,10 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname,'spillit.html'));
+});
+
 // Define route to serve signup form
 app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname,'signup.html'));
@@ -41,6 +45,8 @@ app.get('/signup', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname,'login.html'));
 });
+
+
 
 // Define route to handle signup form submission
 app.post('/signup', (req, res) => {
