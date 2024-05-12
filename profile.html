@@ -6,14 +6,6 @@
     <title>User Profile</title>
 </head>
 <body>
-    <div class="profile-container">
-        <h1>User Profile</h1>
-        <div class="profile-info">
-            <p><strong>Username:</strong> <span id="username"></span></p>
-            <p><strong>Email:</strong> <span id="email"></span></p>
-            <!-- Add any other user information you want to display -->
-        </div>
-    </div>
 
     <!-- Script to fetch user information and populate the profile -->
     <script>
@@ -26,7 +18,8 @@
         .then(data => {
             // Populate user information in the profile
             document.getElementById('username').innerText = data.username;
-            document.getElementById('email').innerText = data.email;
+            
+            
             // Populate other user information if needed
         })
         .catch(error => console.error('Error fetching profile data:', error));
