@@ -1,5 +1,12 @@
 /* styles.css */
 
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fcd4e9;
+    margin: 0;
+    padding: 0;
+}
+
 #title {
     font-family: Impact, Charcoal, sans-serif;
     font-size: 150px;
@@ -14,9 +21,7 @@
     text-transform: none;
     text-shadow: 0 0 10px #FFFFFF, 2px 2px 0px rgba(206,29,29,0);
     color: #FFFFFF;
-    background: #FFA6E6;
-    
-        
+    background: #FFA6E6;      
 }
 
 .long-oval-button {
@@ -56,6 +61,13 @@
     margin: 0 10px; /* Add margin between buttons */
     
 }
+
+
+
+
+
+
+
 
 
 
