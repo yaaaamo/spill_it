@@ -1,0 +1,63 @@
+/* styles.css */
+
+#title {
+    font-family: Impact, Charcoal, sans-serif;
+    font-size: 150px;
+    text-align: center;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #000000;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: italic;
+    font-variant: small-caps;
+    text-transform: none;
+    text-shadow: 0 0 10px #FFFFFF, 2px 2px 0px rgba(206,29,29,0);
+    color: #FFFFFF;
+    background: #FFA6E6;
+    
+        
+}
+
+.long-oval-button {
+    font-family: Impact, Charcoal, sans-serif;
+    font-size: 40px; 
+    letter-spacing: 1px;
+    word-spacing: 1px;
+    color: #FFFFFF;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: italic;
+    font-variant: small-caps;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px #FFFFFF, 2px 2px 0px rgba(206,29,29,0);
+    color: #FFFFFF;
+    background: #FFA6E6;
+    padding: 10px 40px; /* Increased padding for horizontal length */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 50px; /* Makes the button oval */
+}
+
+.long-oval-button:hover {
+    background: #FF66A2; 
+}
+
+/* styles.css */
+
+#buttons {
+    text-align: center; /* Center the buttons horizontally */
+    margin-top: 30vh; /* Move the buttons halfway down the viewport */
+    transform: translateY(-50%); /* Adjust to vertically center the buttons */
+}
+
+.long-oval-button {
+    display: inline-block; /* Display buttons inline */
+    margin: 0 10px; /* Add margin between buttons */
+    
+}
+
+
+
+
+
