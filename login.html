@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="login.css">
     <title>Login</title>
 </head>
 <body>
     <div>
-        <h2>Login</h2>
+        <h2 id="signuplogin">Login</h2>
         <form action="/login" method="POST">
             <div>
-                <label for="username">Email:</label>
+                <label for="email">Email:</label>
                 <input type="text" id="email" name="email" required>
             </div>
             <div>
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <div>
-                <button type="submit">Login</button>
+            <div id="buttons">
+                <button class= "signup-button" type="submit">Login</button>
             </div>
+            <div class="signup-link">Not a member? <a href="signup.html">Signup now</a></div>
         </form>
     </div>
 </body>
