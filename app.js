@@ -1,8 +1,8 @@
 const express = require('express');
 const session = require('express-session');
-
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcrypt'); // Ensure bcrypt is required
 
 const app = express();
 const port = 3000;
@@ -10,9 +10,9 @@ const port = 3000;
 app.use(session({
     secret: 'jedi',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: { maxAge: 60000 } // Session expiration time (1 minute for example)
 }));
-
 
 // Create SQLite database connection
 const dbPath = path.join(__dirname, 'table', 'db.sqlite');
@@ -24,8 +24,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-
-
 // Parse JSON and urlencoded request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,58 +32,75 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname,'spillit.html'));
+    res.sendFile(path.join(__dirname, 'spillit.html'));
 });
 
 // Define route to serve signup form
 app.get('/signup', (req, res) => {
-    res.sendFile(path.join(__dirname,'signup.html'));
+    res.sendFile(path.join(__dirname, 'signup.html'));
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname,'login.html'));
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
-
-
 
 // Define route to handle signup form submission
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
     const { username, email, password } = req.body;
 
-    // Insert user data into the database
-    const sql = `INSERT INTO Signup (username, email, password) VALUES (?, ?, ?)`;
-    db.run(sql, [username, email, password], (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-        console.log('User signed up successfully');
-        // Redirect to the login page after successful signup
-        res.redirect('/login');
-    });
-});
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Insert user data into the database
+        const sql = `INSERT INTO Signup (username, email, password) VALUES (?, ?, ?)`;
+        db.run(sql, [username, email, hashedPassword], (err) => {
+            if (err) {
+                console.error('Error inserting user into database:', err.message);
+                return res.status(500).send('Internal Server Error');
+            }
+            console.log('User signed up successfully');
+            // Redirect to the login page after successful signup
+            res.redirect('/login');
+        });
+    } catch (err) {
+        console.error('Error hashing password:', err.message);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     // Query the database to verify the credentials
-    const sql = "SELECT * FROM signup WHERE email = ? AND password = ?";
-    db.get(sql, [email, password], (err, row) => {
+    const sql = "SELECT * FROM signup WHERE email = ?";
+    db.get(sql, [email], async (err, row) => {
         if (err) {
             console.error('Error querying database:', err.message);
             return res.status(500).send('Internal Server Error');
         }
 
         if (!row) {
-            // User not found or password doesn't match
+            // User not found
             return res.status(401).send('Invalid email or password');
         }
 
-        // Store user information in session
-        req.session.user = row;
+        try {
+            const match = await bcrypt.compare(password, row.password);
 
-        // Redirect or respond with appropriate message based on authentication result
-        res.redirect('/profile');
+            if (!match) {
+                // Password doesn't match
+                return res.status(401).send('Invalid email or password');
+            }
+
+            // Store user information in session
+            req.session.user = row;
+
+            // Redirect or respond with appropriate message based on authentication result
+            res.redirect('/profile');
+        } catch (err) {
+            console.error('Error comparing passwords:', err.message);
+            res.status(500).send('Internal Server Error');
+        }
     });
 });
 
@@ -99,17 +114,32 @@ function requireLogin(req, res, next) {
     }
 }
 
+app.set('view engine', 'ejs');
+
 // Example route that requires authentication
 app.get('/profile', requireLogin, (req, res) => {
-    // Access user information from session
-    const user = req.session.user;
-    res.send(`Welcome ${user.username}!`);
-    console.log("User sent to the profile page");
+    const userId = req.session.user.id;
+
+    // Query the database to get user information
+    db.get('SELECT username FROM signup WHERE id = ?', [userId], (err, row) => {
+        if (err) {
+            console.error('Error querying database:', err.message);
+            res.status(500).send('Internal Server Error');
+        } else {
+            if (row) {
+                // Render the profile page with the username
+                res.render('profile', { username: row.username });
+
+                // Log the username to the console
+                console.log(`Welcome ${row.username}`);
+            } else {
+                res.status(404).send('User not found');
+            }
+        }
+    });
 });
 
-
-
-// Start server
+// Start the server
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running on http://localhost:${port}`);
 });
