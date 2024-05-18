@@ -2,17 +2,30 @@ const express = require('express');
 const session = require('express-session');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const bcrypt = require('bcrypt'); // Ensure bcrypt is required
+const bcrypt = require('bcrypt');
+const SQLiteStore = require('connect-sqlite3')(session);
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
 const port = 3000;
+const server = http.createServer(app);
+const io = socketIo(server);
 
-app.use(session({
+const sessionMiddleware = session({
+    store: new SQLiteStore(),
     secret: 'jedi',
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 60000 } // Session expiration time (1 minute for example)
-}));
+});
+
+app.use(sessionMiddleware);
+
+// Share session with Socket.IO
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, socket.request.res || {}, next);
+});
 
 // Create SQLite database connection
 const dbPath = path.join(__dirname, 'table', 'db.sqlite');
@@ -139,7 +152,41 @@ app.get('/profile', requireLogin, (req, res) => {
     });
 });
 
+// Keep track of connected users
+const users = {};
+
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    // Store the session user information in the socket
+    const session = socket.request.session;
+    const user = session.user;
+
+    if (!user) {
+        console.error('No user found in session');
+        return;
+    }
+
+    // Add the user to the list of connected users
+    users[socket.id] = user.username;
+    io.emit('user list', Object.values(users));
+
+    // Listen for chat messages
+    socket.on('chat message', (msg) => {
+        // Broadcast the message along with the username to all connected clients
+        io.emit('chat message', { username: user.username, message: msg });
+    });
+
+    // Handle user disconnects
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+        // Remove the user from the list of connected users
+        delete users[socket.id];
+        io.emit('user list', Object.values(users));
+    });
+});
+
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
