@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Chat Rooms</title>
+    <style>
+        .room {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Chat Rooms</h1>
+    <div id="rooms-container">
+        <% rooms.forEach(room => { %>
+            <div class="room">
+                <h2><%= room.roomName %></h2>
+                <p><%= room.description %></p>
+                <a href="/rooms/<%= room.id %>">Join Room</a>
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>

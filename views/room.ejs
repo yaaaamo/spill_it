@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= room.roomName %> - Chat Room</title>
+    <style>
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .message {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .users {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1><%= room.roomName %></h1>
+        <div id="users" class="users"></div>
+        <div id="messages" class="messages"></div>
+        <form id="chat-form">
+            <input type="text" id="chat-message" placeholder="Type a message" autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const roomId = '<%= room.id %>';
+
+        // Join the room
+        socket.emit('joinRoom', { room: roomId });
+
+        // Send a chat message
+        document.getElementById('chat-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = document.getElementById('chat-message').value;
+            if (message) {
+                socket.emit('chatMessage', { room: roomId, message });
+                document.getElementById('chat-message').value = '';
+            }
+        });
+
+        // Listen for messages
+        socket.on('message', ({ username, message }) => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.textContent = `${username}: ${message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+        });
+
+        // Listen for updated user list
+        socket.on('userList', (users) => {
+            const usersDiv = document.getElementById('users');
+            usersDiv.innerHTML = 'Users in room: ' + users.length; // Update user count
+        });
+    </script>
+</body>
+</html>
+

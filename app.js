@@ -152,8 +152,43 @@ app.get('/profile', requireLogin, (req, res) => {
     });
 });
 
-// Keep track of connected users
-const users = {};
+// Define route to display rooms
+app.get('/rooms', requireLogin, (req, res) => {
+    db.all('SELECT * FROM rooms', (err, rows) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.render('rooms', { rooms: rows });
+    });
+});
+
+
+
+
+
+app.get('/rooms/:id', requireLogin, (req, res) => {
+    const roomId = req.params.id;
+
+    // Query the database to get room information
+    db.get('SELECT * FROM rooms WHERE id = ?', [roomId], (err, room) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        if (!room) {
+            return res.status(404).send('Room not found');
+        }
+
+        // Render the room-specific page
+        res.render('room', { room });
+    });
+});
+
+
+const users = {};  // To store users in rooms
 
 io.on('connection', (socket) => {
     console.log('A user connected');
@@ -167,24 +202,57 @@ io.on('connection', (socket) => {
         return;
     }
 
-    // Add the user to the list of connected users
-    users[socket.id] = user.username;
-    io.emit('user list', Object.values(users));
+        // Handle joining a room
+    socket.on('joinRoom', ({ room }) => {
+        socket.join(room);
+        console.log(`User joined room: ${room}`);
 
-    // Listen for chat messages
-    socket.on('chat message', (msg) => {
-        // Broadcast the message along with the username to all connected clients
-        io.emit('chat message', { username: user.username, message: msg });
+        if (!users[room]) {
+            users[room] = [];
+        }
+
+        users[room].push(user.username);
+        io.to(room).emit('userList', users[room]);
+        io.to(room).emit('message', { username: 'System', message: `${user.username} has joined the room.` });
     });
 
     // Handle user disconnects
     socket.on('disconnect', () => {
         console.log('A user disconnected');
-        // Remove the user from the list of connected users
-        delete users[socket.id];
-        io.emit('user list', Object.values(users));
+        for (const room in users) {
+            const index = users[room].indexOf(user.username);
+            if (index !== -1) {
+                users[room].splice(index, 1);
+                io.to(room).emit('userList', users[room]);
+                io.to(room).emit('message', { username: 'System', message: `${user.username} has left the room.` });
+            }
+        }
+    });
+
+
+    
+    
+
+    // Handle chat messages
+    socket.on('chatMessage', ({ room, message }) => {
+        io.to(room).emit('message', { username: user.username, message });
+    });
+
+    // Listen for room leave requests
+    socket.on('leaveRoom', (room) => {
+        socket.leave(room);
+        const index = users[room].indexOf(user.username);
+        if (index !== -1) {
+            users[room].splice(index, 1);
+            io.to(room).emit('userList', users[room]);
+            io.to(room).emit('message', { username: 'System', message: `${user.username} has left the room.` });
+        }
     });
 });
+
+
+
+
 
 // Start the server
 server.listen(port, () => {
