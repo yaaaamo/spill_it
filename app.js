@@ -108,14 +108,15 @@ app.post('/login', (req, res) => {
             // Store user information in session
             req.session.user = row;
 
-            // Redirect or respond with appropriate message based on authentication result
-            res.redirect('/profile');
+            // Redirect to the profile page using the user's email
+            res.redirect(`/profile/${email}`);
         } catch (err) {
             console.error('Error comparing passwords:', err.message);
             res.status(500).send('Internal Server Error');
         }
     });
 });
+
 
 function requireLogin(req, res, next) {
     if (req.session && req.session.user) {
@@ -127,14 +128,14 @@ function requireLogin(req, res, next) {
     }
 }
 
+
 app.set('view engine', 'ejs');
 
-// Example route that requires authentication
-app.get('/profile', requireLogin, (req, res) => {
-    const userId = req.session.user.id;
+app.get('/profile/:email', requireLogin, (req, res) => {
+    const userEmail = req.params.email;
 
     // Query the database to get user information
-    db.get('SELECT username FROM signup WHERE id = ?', [userId], (err, row) => {
+    db.get('SELECT username FROM signup WHERE email = ?', [userEmail], (err, row) => {
         if (err) {
             console.error('Error querying database:', err.message);
             res.status(500).send('Internal Server Error');
@@ -152,6 +153,7 @@ app.get('/profile', requireLogin, (req, res) => {
     });
 });
 
+
 // Define route to display rooms
 app.get('/rooms', requireLogin, (req, res) => {
     db.all('SELECT * FROM rooms', (err, rows) => {
@@ -168,7 +170,7 @@ app.get('/rooms', requireLogin, (req, res) => {
 
 
 
-app.get('/rooms/:id', requireLogin, (req, res) => {
+app.get('/rooms/:id', (req, res) => {
     const roomId = req.params.id;
 
     // Query the database to get room information
