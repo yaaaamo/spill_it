@@ -242,14 +242,20 @@ io.on('connection', (socket) => {
 
     // Listen for room leave requests
     socket.on('leaveRoom', (room) => {
-        socket.leave(room);
-        const index = users[room].indexOf(user.username);
-        if (index !== -1) {
-            users[room].splice(index, 1);
-            io.to(room).emit('userList', users[room]);
-            io.to(room).emit('message', { username: 'System', message: `${user.username} has left the room.` });
-        }
-    });
+        const user = socket.request.session.user;
+        if (user) {
+            socket.leave(room);
+            if (users[room]) {
+                const index = users[room].indexOf(user.username);
+                if (index !== -1) {
+                    users[room].splice(index, 1);
+                    io.to(room).emit('userList', users[room]);
+                    io.to(room).emit('message', { username: 'System', message: `${user.username} has left the room.` });
+                }
+            }
+    }
+});
+
 });
 
 
