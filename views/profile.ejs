@@ -4,10 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fcd4e9;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #welcome {
+            font-family: Impact, Charcoal, sans-serif;
+            font-size: 50px;
+            text-align: center;
+            letter-spacing: 2px;
+            word-spacing: 2px;
+            color: #000000;
+            font-weight: normal;
+            text-decoration: none;
+            font-style: italic;
+            font-variant: small-caps;
+            text-transform: none;
+            text-shadow: 0 0 10px #FFFFFF, 2px 2px 0px rgba(206,29,29,0);
+            color: #FFFFFF;
+            background: #FFA6E6;      
+        }
+
+        .rooms-button {
+            font-size: 20px; 
+            letter-spacing: 1px;
+            word-spacing: 1px;
+            color: #FFFFFF;
+            font-weight: normal;
+            text-decoration: none;
+            font-style: italic;
+            font-variant: small-caps;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: #FFA6E6;
+            padding: 20px 100px; /* Increased padding for horizontal length */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 50px; /* Makes the button oval */
+        }
+
+        .rooms-button:hover {
+            background: #FF66A2; 
+        }
+
+        .modify-button {
+            font-size: 20px; 
+            letter-spacing: 1px;
+            word-spacing: 1px;
+            color: #FFFFFF;
+            font-weight: normal;
+            text-decoration: none;
+            font-style: italic;
+            font-variant: small-caps;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: #FFA6E6;
+            padding: 20px 110px; /* Increased padding for horizontal length */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 50px; /* Makes the button oval */
+        }
+
+        .modify-button:hover {
+            background: #FF66A2; 
+        }
+
+        #buttons {
+            text-align: center; /* Center the buttons horizontally */
+            margin-top: 20vh; /* Move the buttons halfway down the viewport */
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, <%= username %></h1>
-    <a href="/rooms">Go to Rooms</a>
+    <h1 id="welcome">Welcome, <%= username %></h1>
+    <div id="buttons">
+        <form action="/rooms" method="GET">
+            <button type="submit" class="rooms-button">Go to Rooms</button>
+        </form>
+        <p>
+
+        </p>
+        <form action="/modify/<%= id %>" method="GET">
+            <button type="submit" class="modify-button">Modify Info</button>
+        </form>
+    </div> 
 </body>
 </html>
-

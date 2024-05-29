@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fcd4e9;
+            margin: 0;
+            padding: 0;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #FFA6E6;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #FFA6E6;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #FF66A2;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Edit Profile</h1>
+        <form action="/modify/<%= id %>" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" value="<%= username %>" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</body>
+</html>
+
