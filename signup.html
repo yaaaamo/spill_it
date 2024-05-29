@@ -16,8 +16,28 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
         <div id="buttons">
-            <button class= "signup-button" type="submit">Sign Up</button>
+            <button class="signup-button" type="submit">Sign Up</button>
         </div>
     </form>
+
+    <!-- Display validation errors -->
+    <div id="errors"></div>
+
+    <script>
+        // Fetch validation errors from the server and display them
+        fetch('/signup')
+            .then(response => response.json())
+            .then(data => {
+                if (data.errors) {
+                    const errorsDiv = document.getElementById('errors');
+                    data.errors.forEach(error => {
+                        const errorP = document.createElement('p');
+                        errorP.textContent = error.msg;
+                        errorsDiv.appendChild(errorP);
+                    });
+                }
+            });
+    </script>
 </body>
 </html>
+
