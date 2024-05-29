@@ -3,6 +3,7 @@ const session = require('express-session');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcrypt');
+const { body, validationResult } = require('express-validator'); // Import express-validator
 const SQLiteStore = require('connect-sqlite3')(session);
 const http = require('http');
 const socketIo = require('socket.io');
@@ -17,7 +18,7 @@ const sessionMiddleware = session({
     secret: 'jedi',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 60000 } // Session expiration time (1 minute for example)
+    cookie: { maxAge: 10 * 60 * 1000 } // Session expiration time (1 minute for example)
 });
 
 app.use(sessionMiddleware);
@@ -57,8 +58,17 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// Define route to handle signup form submission
-app.post('/signup', async (req, res) => {
+
+
+// Define route to handle signup form submission with email validation
+app.post('/signup', [
+    body('email').isEmail().withMessage('Invalid email format') // Email validation
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { username, email, password } = req.body;
 
     try {
@@ -108,8 +118,8 @@ app.post('/login', (req, res) => {
             // Store user information in session
             req.session.user = row;
 
-            // Redirect to the profile page using the user's email
-            res.redirect(`/profile/${email}`);
+            // Redirect to the profile page with the user's ID
+            res.redirect(`/profile/${row.id}`);
         } catch (err) {
             console.error('Error comparing passwords:', err.message);
             res.status(500).send('Internal Server Error');
@@ -118,31 +128,34 @@ app.post('/login', (req, res) => {
 });
 
 
+
 function requireLogin(req, res, next) {
     if (req.session && req.session.user) {
         // User is authenticated
         next();
     } else {
         // User is not authenticated, redirect to login page or send an error response
-        res.status(401).send('Unauthorized');
+        res.redirect('/login');
     }
 }
 
+// Define route to handle editing user profile
 
 app.set('view engine', 'ejs');
 
-app.get('/profile/:email', requireLogin, (req, res) => {
-    const userEmail = req.params.email;
+// Update the profile route to use the user ID
+app.get('/profile/:id', requireLogin, (req, res) => {
+    const userId = req.params.id;
 
     // Query the database to get user information
-    db.get('SELECT username FROM signup WHERE email = ?', [userEmail], (err, row) => {
+    db.get('SELECT username FROM signup WHERE id = ?', [userId], (err, row) => {
         if (err) {
             console.error('Error querying database:', err.message);
             res.status(500).send('Internal Server Error');
         } else {
             if (row) {
                 // Render the profile page with the username
-                res.render('profile', { username: row.username });
+                res.render('profile', { username: row.username, id: userId });
 
                 // Log the username to the console
                 console.log(`Welcome ${row.username}`);
@@ -153,9 +166,72 @@ app.get('/profile/:email', requireLogin, (req, res) => {
     });
 });
 
+app.get('/modify/:id', requireLogin, (req, res) => {
+    const userId = req.params.id;
+
+    // Query the database to get user information
+    db.get('SELECT username, email FROM signup WHERE id = ?', [userId], (err, row) => {
+        if (err) {
+            console.error('Error querying database:', err.message);
+            res.status(500).send('Internal Server Error');
+        } else {
+            if (row) {
+                // Render the edit profile page with the user's information
+                res.render('edit-profile', { id: userId, username: row.username });
+            } else {
+                res.status(404).send('User not found');
+            }
+        }
+    });
+});
+
+app.post('/modify/:id', requireLogin, async (req, res) => {
+    const userId = req.params.id;
+    const { username, password } = req.body;
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update user information in the database
+        const sql = `UPDATE signup SET username = ?, password = ? WHERE id = ?`;
+        db.run(sql, [username, hashedPassword, userId], (err) => {
+            if (err) {
+                console.error('Error updating user information:', err.message);
+                return res.status(500).send('Internal Server Error');
+            }
+            // Redirect to the login page after successful update
+            res.redirect('/login');
+        });
+    } catch (err) {
+        console.error('Error hashing password:', err.message);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Define route to display rooms
-app.get('/rooms', requireLogin, (req, res) => {
+app.get('/rooms',requireLogin, (req, res) => {
     db.all('SELECT * FROM rooms', (err, rows) => {
         if (err) {
             console.error(err);
@@ -170,7 +246,7 @@ app.get('/rooms', requireLogin, (req, res) => {
 
 
 
-app.get('/rooms/:id', (req, res) => {
+app.get('/rooms/:id',requireLogin, (req, res) => {
     const roomId = req.params.id;
 
     // Query the database to get room information
