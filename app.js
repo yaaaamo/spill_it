@@ -200,6 +200,7 @@ app.post('/modify/:id', requireLogin, async (req, res) => {
                 return res.status(500).send('Internal Server Error');
             }
             // Redirect to the login page after successful update
+            console.log('Informations modified succesfully.')
             res.redirect('/login');
         });
     } catch (err) {
@@ -207,6 +208,121 @@ app.post('/modify/:id', requireLogin, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.get('/cp', requireLogin, (req, res) => {
+    const user = req.session.user; // Assuming user information is stored in the session
+
+    // Render the change-profile page with the user object
+    res.render('change-profile', { user });
+});
+
+
+
+app.post('/save-profile', requireLogin, (req, res) => {
+    const { name, surname, age, bio } = req.body;
+    const userId = req.session.user.id; // Get the user's ID from the session
+
+    // Check if the user already has profile information in the "infos" table
+    db.get('SELECT * FROM infos WHERE user_id = ?', [userId], (err, row) => {
+        if (err) {
+            console.error('Error checking profile information:', err.message);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        if (row) {
+            // Update the existing profile information
+            const sql = 'UPDATE infos SET name = ?, surname = ?, age = ?, bio = ? WHERE user_id = ?';
+            db.run(sql, [name, surname, age, bio, userId], (err) => {
+                if (err) {
+                    console.error('Error updating profile:', err.message);
+                    res.status(500).send('Internal Server Error');
+                } else {
+                    // Profile updated successfully
+                    res.redirect('/view-profile'); // Redirect to the view profile page
+                }
+            });
+        } else {
+            // Insert new profile information
+            const insertSql = 'INSERT INTO infos (user_id, name, surname, age, bio) VALUES (?, ?, ?, ?, ?)';
+            db.run(insertSql, [userId, name, surname, age, bio], (err) => {
+                if (err) {
+                    console.error('Error saving profile:', err.message);
+                    res.status(500).send('Internal Server Error');
+                } else {
+                    // Profile saved successfully
+                    res.redirect('/view-profile'); // Redirect to the view profile page
+                }
+            });
+        }
+    });
+});
+
+
+
+app.get('/view-profile', requireLogin, (req, res) => {
+    const userId = req.session.user.id; // Get the user's ID from the session
+
+    // Query the database to get the user's profile information
+    const sql = `
+        SELECT i.name, i.surname, i.age, i.bio
+        FROM infos i
+        WHERE i.user_id = ?
+    `;
+    db.get(sql, [userId], (err, row) => {
+        if (err) {
+            console.error('Error querying database:', err.message);
+            res.status(500).send('Internal Server Error');
+        } else {
+            if (row) {
+                // Render the view-profile page with the user's profile information
+                res.render('view-profile', { user: row });
+            } else {
+                res.status(404).send('Profile not found');
+            }
+        }
+    });
+});
+
+app.get('/goBack/:id', requireLogin, (req, res) => {
+    const userId = req.params.id;
+
+    // Retrieve the user information based on userId from the database
+    const query = 'SELECT id, username FROM signup WHERE id = ?';
+    db.get(query, [userId], (err, user) => {
+        if (err) {
+            console.error('Error retrieving user data:', err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            // Render the profile page with the user object
+            res.render('profile', { id: user.id, username: user.username });
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
