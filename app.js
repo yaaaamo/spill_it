@@ -283,21 +283,7 @@ app.get('/view-profile', requireLogin, (req, res) => {
     });
 });
 
-app.get('/goBack/:id', requireLogin, (req, res) => {
-    const userId = req.params.id;
 
-    // Retrieve the user information based on userId from the database
-    const query = 'SELECT id, username FROM signup WHERE id = ?';
-    db.get(query, [userId], (err, user) => {
-        if (err) {
-            console.error('Error retrieving user data:', err);
-            res.status(500).send('Internal Server Error');
-        } else {
-            // Render the profile page with the user object
-            res.render('profile', { id: user.id, username: user.username });
-        }
-    });
-});
 
 
 
