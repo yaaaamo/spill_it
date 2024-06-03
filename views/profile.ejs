@@ -73,6 +73,28 @@
             background: #FF66A2; 
         }
 
+        .editProfile {
+            font-size: 20px; 
+            letter-spacing: 1px;
+            word-spacing: 1px;
+            color: #FFFFFF;
+            font-weight: normal;
+            text-decoration: none;
+            font-style: italic;
+            font-variant: small-caps;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: #FFA6E6;
+            padding: 20px 110px; /* Increased padding for horizontal length */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 50px; /* Makes the button oval */
+        }
+
+        .editProfile:hover {
+            background: #FF66A2; 
+        }
+
         #buttons {
             text-align: center; /* Center the buttons horizontally */
             margin-top: 20vh; /* Move the buttons halfway down the viewport */
@@ -92,6 +114,14 @@
         <form action="/modify/<%= id %>" method="GET">
             <button type="submit" class="modify-button">Modify Info</button>
         </form>
+        <p>
+
+        </p>
+        <form action="/cp" method="GET">
+            <button type="submit">Change Profile</button>
+        </form>
+        
+
     </div> 
 </body>
 </html>
