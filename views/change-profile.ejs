@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Profile Information</title>
+</head>
+
+<body>
+    <h1>Change Profile Information</h1>
+    <form action="/save-profile" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="surname">Surname:</label>
+        <input type="text" id="surname" name="surname" required><br><br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required><br><br>
+        <label for="bio">Bio:</label>
+        <textarea id="bio" name="bio" required></textarea><br><br>
+        <button type="submit">Save Profile</button>
+    </form>
+</body>
+
+</html>
