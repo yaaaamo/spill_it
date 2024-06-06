@@ -5,18 +5,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFA6E6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF66A2;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .profile-info {
+            margin: 20px 0;
+        }
+
+        .profile-info p {
+            font-size: 1.1em;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f2f0f0;
+            border-radius: 5px;
+        }
+
+        .profile-info p span {
+            font-weight: bold;
+            color: #FF66A2;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>User Profile</h1>
-    <p>Name: <%= user.name %></p>
-    <p>Surname: <%= user.surname %></p>
-    <p>Age: <%= user.age %></p>
-    <p>Bio: <%= user.bio %></p>
-    <p>
-
-    </p>
-
+    <div class="profile-container">
+        <h1>User Profile</h1>
+        <div class="profile-info">
+            <p>Name: <span><%= user.name %></span></p>
+            <p>Surname: <span><%= user.surname %></span></p>
+            <p>Age: <span><%= user.age %></span></p>
+            <p>Bio: <span><%= user.bio %></span></p>
+        </div>
+    </div>
 </body>
 
 </html>
