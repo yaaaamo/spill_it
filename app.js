@@ -277,57 +277,11 @@ app.get('/view-profile', requireLogin, (req, res) => {
                 // Render the view-profile page with the user's profile information
                 res.render('view-profile', { user: row });
             } else {
-                res.status(404).send('Profile not found');
+                res.status(404).send('Profile not found, Create a Profile!');
             }
         }
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -435,7 +389,6 @@ io.on('connection', (socket) => {
 });
 
 });
-
 
 
 

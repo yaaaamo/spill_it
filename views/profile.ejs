@@ -73,7 +73,29 @@
             background: #FF66A2; 
         }
 
-        .editProfile {
+        .create-button {
+            font-size: 20px; 
+            letter-spacing: 1px;
+            word-spacing: 1px;
+            color: #FFFFFF;
+            font-weight: normal;
+            text-decoration: none;
+            font-style: italic;
+            font-variant: small-caps;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: #FFA6E6;
+            padding: 20px 95px; /* Increased padding for horizontal length */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 50px; /* Makes the button oval */
+        }
+
+        .create-button:hover {
+            background: #FF66A2; 
+        }
+
+        .view-button {
             font-size: 20px; 
             letter-spacing: 1px;
             word-spacing: 1px;
@@ -91,7 +113,7 @@
             border-radius: 50px; /* Makes the button oval */
         }
 
-        .editProfile:hover {
+        .view-button:hover {
             background: #FF66A2; 
         }
 
@@ -118,7 +140,13 @@
 
         </p>
         <form action="/cp" method="GET">
-            <button type="submit">Change Profile</button>
+            <button type="submit" class="create-button">Create Profile</button>
+        </form>
+        <p>
+
+        </p>
+        <form action="/view-profile" method="GET">
+            <button type="submit" class="view-button">View Profile</button>
         </form>
         
 
